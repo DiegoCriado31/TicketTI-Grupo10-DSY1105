@@ -30,6 +30,7 @@ import androidx.navigation.NavController
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.TextButton
+import com.example.ticketti.model.Rol
 
 // Categorías del formulario (a confirmar con Abraham)
 private val categorias = listOf(
@@ -47,6 +48,8 @@ fun SolicitudFormScreen(
     solicitudId: Long? = null   // null = solicitud nueva; con valor = editar
 ) {
     val estado by viewModel.uiState.collectAsState()
+    val usuario by viewModel.usuarioActual.collectAsState()
+    val puedeEliminar = usuario?.rol == Rol.ADMIN && solicitudId != null
     var menuAbierto by remember { mutableStateOf(false) }
     var confirmarEliminar by remember { mutableStateOf(false) }
     // Al entrar: preparar formulario nuevo o cargar la solicitud a editar
@@ -189,7 +192,7 @@ fun SolicitudFormScreen(
                 Text(if (estado.guardando) "Guardando..." else "Guardar solicitud")
             }
             // Eliminar (solo cuando se está editando una solicitud existente)
-            if (solicitudId != null) {
+            if (puedeEliminar) {
                 OutlinedButton(
                     onClick = { confirmarEliminar = true },
                     enabled = !estado.guardando,
