@@ -31,6 +31,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.TextButton
 import com.example.ticketti.model.Rol
+import androidx.compose.runtime.saveable.rememberSaveable
 
 // Categorías del formulario (a confirmar con Abraham)
 private val categorias = listOf(
@@ -52,12 +53,17 @@ fun SolicitudFormScreen(
     val puedeEliminar = usuario?.rol == Rol.ADMIN && solicitudId != null
     var menuAbierto by remember { mutableStateOf(false) }
     var confirmarEliminar by remember { mutableStateOf(false) }
-    // Al entrar: preparar formulario nuevo o cargar la solicitud a editar
+    // rememberSaveable sobrevive a rotar o volver de la cámara, pero se pierde
+    // al salir del formulario. Así solo se inicializa UNA vez por visita.
+    var inicializado by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(solicitudId) {
-        if (solicitudId != null) {
-            viewModel.cargarSolicitud(solicitudId)
-        } else {
-            viewModel.nuevaSolicitud()
+        if (!inicializado) {
+            if (solicitudId != null) {
+                viewModel.cargarSolicitud(solicitudId)
+            } else {
+                viewModel.nuevaSolicitud()
+            }
+            inicializado = true
         }
     }
 
@@ -86,6 +92,14 @@ fun SolicitudFormScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+
+            // Fecha y hora de creación (solo al editar; nunca cambia)
+            estado.fechaCreacion?.let { fecha ->
+                Text(
+                    text = "Creada el ${formatearFecha(fecha)}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
 
             // Campo título
             OutlinedTextField(

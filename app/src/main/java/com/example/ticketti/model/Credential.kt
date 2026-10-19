@@ -12,8 +12,9 @@ data class Credential(
         // Usuarios ficticios para la demostracion
         val Admin = Credential(username = "admin", password = "123", rol = Rol.ADMIN)
         val Cliente = Credential(username = "cliente", password = "123", rol = Rol.CLIENTE)
+        val Cliente2 = Credential(username = "cliente2", password = "123", rol = Rol.CLIENTE)
         val Tecnico = Credential(username = "tecnico", password = "123", rol = Rol.TECNICO)
 
-        val Usuarios = listOf(Admin, Cliente, Tecnico)
+        val Usuarios = listOf(Admin, Cliente, Cliente2, Tecnico)
     }
 }

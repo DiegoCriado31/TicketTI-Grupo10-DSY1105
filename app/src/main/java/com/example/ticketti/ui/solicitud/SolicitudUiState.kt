@@ -7,6 +7,7 @@ data class SolicitudUiState(
     val servicio: String = "",
     val evidenciaUri: String? = null,
     val estado: String = "Recibida",
+    val fechaCreacion: Long? = null,
     val tituloError: String? = null,
     val descripcionError: String? = null,
     val categoriaError: String? = null,

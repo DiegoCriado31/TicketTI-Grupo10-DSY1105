@@ -148,6 +148,11 @@ private fun SolicitudItem(
                 )
             }
 
+            Text(
+                text = "Creada: ${formatearFecha(solicitud.fechaCreacion)}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
             if (mostrarAutor) {
                 Text(
                     text = "Creada por: ${solicitud.creadoPor.ifEmpty { "sin usuario" }}",

@@ -5,8 +5,43 @@ App móvil Android (Kotlin + Jetpack Compose) para **registrar y dar seguimiento
 - **Asignatura:** DSY1105 · Desarrollo de Aplicaciones Móviles (Duoc UC, CITT Puente Alto)
 - **Entrega:** primera entrega (módulo de Solicitudes). El caso completo se desarrolla en el examen transversal.
 - **Grupo:** 10
-- **Integrantes:** Diego _[apellido]_ y Abraham _[apellido]_
+- **Integrantes:** Diego Criado y Abraham Herrera
 - **Base del proyecto:** ejemplo del profesor (login + navegación), adaptado al caso. No se trabaja sobre el repo del profe.
+
+---
+
+## 0. Estado actual del proyecto (actualizado 19-oct-2026)
+
+> **Abraham: empieza leyendo esta sección y la 11.**
+
+### Ya está hecho y funcionando (rama `main`, mantenida por Diego)
+- Login con roles y usuarios ficticios, menú y navegación completa (Login → Menú → Lista → Formulario).
+- Room completo: `SolicitudEntity`, `SolicitudDao`, `AppDatabase`, `SolicitudRepository`.
+- `SolicitudUiState` y `SolicitudViewModel` con `StateFlow`, validaciones, código automático (`TI-0001`…), guardar, editar y eliminar.
+- `ListaSolicitudesScreen` y `SolicitudFormScreen` conectadas al ViewModel (lista reactiva).
+- Filtro por perfil: el **cliente solo ve sus solicitudes**; **admin y técnico ven todas**. Solo el **admin** puede eliminar.
+- Dos clientes de prueba (`cliente` y `cliente2`) para ver solicitudes de personas distintas.
+- Fecha y hora de creación visibles en la lista y en el formulario. **Nunca cambia al editar** (el Repository la toma de lo ya guardado).
+- Corregido: el formulario ya no se borra al rotar la pantalla ni al volver de la cámara.
+
+### Usuarios de prueba (clave de todos: `123`)
+
+| Usuario | Rol | Qué ve |
+|---|---|---|
+| `admin` | Administrador | Todas las solicitudes; puede eliminar |
+| `tecnico` | Técnico | Todas las solicitudes |
+| `cliente` | Cliente | Solo las suyas |
+| `cliente2` | Cliente | Solo las suyas |
+
+### Lo que falta
+| Pendiente | Responsable | Estado |
+|---|---|---|
+| Cámara: botón, `FileProvider`, vista previa de la foto (ver sección 11) | Abraham | Por hacer |
+| Animaciones (la rúbrica las pide) | Por acordar | Por hacer |
+| Segundo recurso del dispositivo (la rúbrica pide al menos dos) | Por acordar | Por hacer |
+| Pruebas finales en pareja (incluye reiniciar la app y ver que los datos siguen) | Ambos | Por hacer |
+| Informe con 8 o más hitos | Cada uno documenta los de su parte | Por hacer |
+| Commits de **ambos** en el repo (vale 20% de la rúbrica) | Ambos | Abraham aún sin commits |
 
 ---
 
@@ -84,7 +119,7 @@ Reglas de la arquitectura:
 - **Room desde el inicio**: nada de listas mutables en memoria. Los datos deben sobrevivir al reiniciar la app.
 - La lista es **reactiva**: el DAO devuelve `Flow<List<SolicitudEntity>>`.
 
-### UiState (definido por el profesor)
+### UiState (base del profesor + campos que agregamos)
 ```kotlin
 data class SolicitudUiState(
     val titulo: String = "",
@@ -93,11 +128,13 @@ data class SolicitudUiState(
     val servicio: String = "",
     val evidenciaUri: String? = null,
     val estado: String = "Recibida",
+    val fechaCreacion: Long? = null,      // agregado: se muestra al editar
     val tituloError: String? = null,
     val descripcionError: String? = null,
     val categoriaError: String? = null,
     val guardando: Boolean = false,
-    val guardadoExitosamente: Boolean = false
+    val guardadoExitosamente: Boolean = false,
+    val servicioError: String? = null     // agregado: servicio obligatorio según categoría
 )
 ```
 
@@ -150,23 +187,24 @@ Para trabajar en paralelo sin bloquearse, A publica primero (aunque esté a medi
 ## 6. Flujo de trabajo con Git
 
 - Rama `main`: siempre debe compilar. No se commitea directo.
-- Ramas de trabajo: `feature/datos-room` (A) y `feature/ui-navegacion` (B).
+- Ramas de trabajo: Diego trabaja en la rama `Diego`. Abraham crea la suya **desde `main` actualizado** (por ejemplo `feature/camara`).
 - Commits pequeños y frecuentes, con mensaje claro (`feat: agrega SolicitudDao con Flow`).
 - Se integra a `main` con Pull Request, revisado por el otro integrante.
 - El **primer commit** (proyecto renombrado y adaptado) lo hace una sola persona. Desde el segundo trabajan los dos.
-- No subir `local.properties`, `.idea/` ni la carpeta `build/`.
+- No subir `local.properties`, `.idea/`, `.kotlin/` ni la carpeta `build/` (ya están en el `.gitignore`).
+- **Aviso:** la carpeta `.idea/` estaba subida por error y se saca del repo. Al hacer `git pull` de ese cambio, Git borra tu carpeta `.idea` local. Es normal: Android Studio la regenera sola. Si el proyecto no sincroniza, revisa en *File → Settings → Build, Execution, Deployment → Build Tools → Gradle* que el **Gradle JDK** sea 17 o superior.
 
 ## 7. Checklist de la rúbrica
 
-- [ ] Navegación: MainActivity → AppNav, secuencia Login → Menú → Lista → Formulario
-- [ ] Lista de solicitudes almacenadas
-- [ ] Crear y editar solicitud
-- [ ] Formulario bien estructurado
-- [ ] Errores visibles, controlados desde el ViewModel
-- [ ] UiState + StateFlow
-- [ ] MVVM: ViewModel + Repository + DAO + Room
-- [ ] La solicitud se guarda realmente (sobrevive al reinicio)
-- [ ] La lista se actualiza al registrar o modificar
+- [x] Navegación: MainActivity → AppNav, secuencia Login → Menú → Lista → Formulario
+- [x] Lista de solicitudes almacenadas
+- [x] Crear y editar solicitud
+- [x] Formulario bien estructurado
+- [x] Errores visibles, controlados desde el ViewModel
+- [x] UiState + StateFlow
+- [x] MVVM: ViewModel + Repository + DAO + Room
+- [ ] La solicitud se guarda realmente (sobrevive al reinicio) — falta probarlo cerrando y abriendo la app
+- [x] La lista se actualiza al registrar o modificar
 - [ ] Cámara integrada al flujo, con la foto vinculada a la solicitud
 - [ ] Commits de ambos integrantes
 - [ ] Paquetes y responsabilidades claras
@@ -196,3 +234,96 @@ Asignación de responsables, prioridades, historial de cambios, compartir por Wh
 - Los ejemplos del profe están en `DSY1105-009V-2026` (base), `GUIA11Formulariosvalidaciones` (formulario + Room) y `camara2026` (lectura de QR con CameraX y ML Kit, disponible como opción extra).
 - En el `.txt` del `RegistroScreen` del profe hay una errata: usa `onAceptaTerminosChange`, pero el ViewModel define `onAceptarTerminosChange`. En el repo en GitHub está correcto.
 - El ejemplo de Room del profe llama al DAO desde el ViewModel. **Nosotros debemos pasar por Repository**, porque así lo exige la rúbrica.
+
+## 11. Guía de la cámara (para Abraham)
+
+La cámara usa la app de cámara del sistema (`TakePicture`) con un `FileProvider`. **No se necesita pedir permiso de cámara**, y por eso es importante **no declarar** `<uses-permission android:name="android.permission.CAMERA" />` en el Manifest: si se declara y no se pide en tiempo de ejecución, la app se cae con `SecurityException`.
+
+Lo que ya existe y **no hay que rehacer**: `viewModel.onEvidenciaChange(uri: String?)` guarda la foto en el estado, y `evidenciaUri` se guarda en Room al presionar *Guardar*.
+
+### Paso 1 · Archivo `app/src/main/res/xml/file_paths.xml` (nuevo)
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <files-path name="evidencias" path="evidencias/" />
+</paths>
+```
+
+### Paso 2 · `AndroidManifest.xml`
+Arriba de `<application>` agrega:
+```xml
+<uses-feature android:name="android.hardware.camera" android:required="false" />
+```
+Dentro de `<application>` (después de `</activity>`) agrega:
+```xml
+<provider
+    android:name="androidx.core.content.FileProvider"
+    android:authorities="${applicationId}.fileprovider"
+    android:exported="false"
+    android:grantUriPermissions="true">
+    <meta-data
+        android:name="android.support.FILE_PROVIDER_PATHS"
+        android:resource="@xml/file_paths" />
+</provider>
+```
+
+### Paso 3 · `SolicitudFormScreen.kt`: botón "Tomar foto"
+Dentro de la función, junto a las otras variables de estado:
+```kotlin
+val context = LocalContext.current
+// rememberSaveable: si la pantalla se recrea mientras está la cámara abierta, no se pierde la ruta
+var uriPendiente by rememberSaveable { mutableStateOf<String?>(null) }
+
+val tomarFoto = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { exito ->
+    if (exito) viewModel.onEvidenciaChange(uriPendiente)
+    uriPendiente = null
+}
+```
+Y reemplaza el `Text("Evidencia: ...")` por un botón (deja el texto si quieres):
+```kotlin
+OutlinedButton(
+    onClick = {
+        val carpeta = File(context.filesDir, "evidencias").apply { mkdirs() }
+        val archivo = File(carpeta, "evidencia_${System.currentTimeMillis()}.jpg")
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", archivo)
+        uriPendiente = uri.toString()
+        tomarFoto.launch(uri)
+    },
+    modifier = Modifier.fillMaxWidth()
+) {
+    Text(if (estado.evidenciaUri != null) "Cambiar foto" else "Tomar foto")
+}
+```
+Imports que se agregan:
+```kotlin
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.FileProvider
+import java.io.File
+```
+
+### Paso 4 · Vista previa de la foto
+Opción con la librería Coil. En `app/build.gradle.kts`, dentro de `dependencies`:
+```kotlin
+implementation("io.coil-kt:coil-compose:2.7.0")
+```
+Luego *Sync Project* y en el formulario, debajo del botón:
+```kotlin
+estado.evidenciaUri?.let { uri ->
+    AsyncImage(
+        model = Uri.parse(uri),
+        contentDescription = "Evidencia de la solicitud",
+        modifier = Modifier.fillMaxWidth().height(200.dp)
+    )
+}
+```
+(con `import coil.compose.AsyncImage` y `import androidx.compose.foundation.layout.height`). Si prefieren no agregar dependencias, pueden decodificar la imagen con `BitmapFactory`; el equipo decide.
+
+### Reglas para no romper lo que ya funciona
+- **No llames a `nuevaSolicitud()` al volver de la cámara.** La pantalla ya se inicializa una sola vez con `rememberSaveable`; no lo cambies.
+- Prueba **en el celular por USB** (el emulador es lento y su cámara es falsa).
+- Toma la foto, vuelve al formulario, **guarda**, abre la solicitud desde la lista y comprueba que la foto sigue ahí.
+- Las fotos de prueba son **ficticias** (boceto, equipo con falla, factura inventada). Nada de datos reales de clientes.
+- Commits pequeños en tu rama, con mensajes claros (`feat: agrega botón tomar foto con FileProvider`) y Pull Request hacia `main`, que revisa Diego.
