@@ -6,14 +6,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ticketti.ui.solicitud.ListaSolicitudesScreen
 import com.example.ticketti.ui.solicitud.SolicitudFormScreen
+import com.example.ticketti.ui.solicitud.SolicitudViewModel
 import com.example.ticketti.ui.theme.HomeScreen
 import com.example.ticketti.view.DrawerMenu
 
 @Composable
 fun AppNav() {
     val navController = rememberNavController()
+    val solicitudViewModel: SolicitudViewModel = viewModel()
 
     NavHost(navController = navController, startDestination = "login") {
 
@@ -33,14 +36,36 @@ fun AppNav() {
             DrawerMenu(username = username, navController = navController)
         }
 
-        // Lista de solicitudes (pantalla provisoria: la reemplaza la version real)
+        // Lista de solicitudes
         composable("lista_solicitudes") {
-            ListaSolicitudesScreen(navController = navController)
+            ListaSolicitudesScreen(navController = navController, viewModel = solicitudViewModel)
         }
 
-        // Formulario de solicitud (pantalla provisoria: la reemplaza la version real)
+        // Formulario de solicitud
+        composable(
+            route = "solicitud_form/{solicitudId}",
+            arguments = listOf(
+                navArgument("solicitudId") {
+                    type = NavType.LongType
+                    defaultValue = 0L
+                }
+            )
+        ) { backStackEntry ->
+            val solicitudId = backStackEntry.arguments?.getLong("solicitudId") ?: 0L
+            SolicitudFormScreen(
+                navController = navController,
+                viewModel = solicitudViewModel,
+                solicitudId = if (solicitudId == 0L) null else solicitudId
+            )
+        }
+
+        // Ruta alternativa para nueva solicitud
         composable("solicitud_form") {
-            SolicitudFormScreen(navController = navController)
+            SolicitudFormScreen(
+                navController = navController,
+                viewModel = solicitudViewModel,
+                solicitudId = null
+            )
         }
     }
 }
