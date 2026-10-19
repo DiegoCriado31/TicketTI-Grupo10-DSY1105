@@ -83,6 +83,9 @@ class SolicitudViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun cargarSolicitud(id: Long) {
+        // Limpia primero para no mostrar un instante los datos de la solicitud anterior
+        solicitudCargada = null
+        _uiState.value = SolicitudUiState()
         viewModelScope.launch {
             val entity = repository.obtener(id) ?: return@launch
             solicitudCargada = entity
@@ -92,7 +95,8 @@ class SolicitudViewModel(app: Application) : AndroidViewModel(app) {
                 categoria = entity.categoria,
                 servicio = entity.servicio,
                 evidenciaUri = entity.evidenciaUri,
-                estado = entity.estado
+                estado = entity.estado,
+                fechaCreacion = entity.fechaCreacion
             )
         }
     }
@@ -109,13 +113,16 @@ class SolicitudViewModel(app: Application) : AndroidViewModel(app) {
             categoria = entity.categoria,
             servicio = entity.servicio,
             evidenciaUri = entity.evidenciaUri,
-            estado = entity.estado
+            estado = entity.estado,
+            fechaCreacion = entity.fechaCreacion
         )
     }
 
     // ---- Guardar ----
 
     fun guardar() {
+        // Evita guardar dos veces si el usuario toca el botón rápido
+        if (_uiState.value.guardando) return
         val s = _uiState.value
 
         val tituloError = if (s.titulo.isBlank()) "El título es obligatorio" else null

@@ -20,7 +20,16 @@ class SolicitudRepository(private val dao: SolicitudDao) {
             dao.actualizar(solicitud.copy(id = nuevoId, codigo = codigo))
             nuevoId
         } else {
-            dao.actualizar(solicitud)
+            // Al actualizar, el código, la fecha de creación y el autor NUNCA cambian:
+            // se toman de lo que ya está guardado en la base.
+            val original = dao.obtenerPorId(solicitud.id)
+            dao.actualizar(
+                solicitud.copy(
+                    codigo = original?.codigo ?: solicitud.codigo,
+                    fechaCreacion = original?.fechaCreacion ?: solicitud.fechaCreacion,
+                    creadoPor = original?.creadoPor ?: solicitud.creadoPor
+                )
+            )
             solicitud.id
         }
     }
