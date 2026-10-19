@@ -130,6 +130,18 @@ class SolicitudViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    // ---- Eliminar ----
+
+    fun eliminar() {
+        val base = solicitudCargada ?: return
+        viewModelScope.launch {
+            _uiState.update { it.copy(guardando = true) }
+            repository.eliminar(base)
+            solicitudCargada = null
+            // Reutiliza la bandera para que la pantalla vuelva a la lista
+            _uiState.update { it.copy(guardando = false, guardadoExitosamente = true) }
+        }
+    }
     // La UI llama esto después de navegar atrás, para no repetir la navegación
     fun consumirGuardado() {
         _uiState.update { it.copy(guardadoExitosamente = false) }
