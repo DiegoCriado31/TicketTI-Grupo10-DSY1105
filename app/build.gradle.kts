@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp")/* procesador que lee tus anotaciones de Room (@Entity, @Dao, @Database) */
 }
 
 android {
@@ -56,6 +57,12 @@ dependencies {
     // Dependencias para iconos
     implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.compose.material:material-icons-extended")
+
+    // Room (persistencia local)
+    val roomVersion = "2.6.1"
+    implementation("androidx.room:room-runtime:$roomVersion")// librería base
+    implementation("androidx.room:room-ktx:$roomVersion")// : agrega corrutinas y Flow. actualiza sola al guardar.
+    ksp("androidx.room:room-compiler:$roomVersion")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
