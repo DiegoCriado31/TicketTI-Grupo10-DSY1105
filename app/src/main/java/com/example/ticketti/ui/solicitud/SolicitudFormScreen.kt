@@ -27,6 +27,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.TextButton
 
 // Categorías del formulario (a confirmar con Abraham)
 private val categorias = listOf(
@@ -45,7 +48,7 @@ fun SolicitudFormScreen(
 ) {
     val estado by viewModel.uiState.collectAsState()
     var menuAbierto by remember { mutableStateOf(false) }
-
+    var confirmarEliminar by remember { mutableStateOf(false) }
     // Al entrar: preparar formulario nuevo o cargar la solicitud a editar
     LaunchedEffect(solicitudId) {
         if (solicitudId != null) {
@@ -172,6 +175,33 @@ fun SolicitudFormScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(if (estado.guardando) "Guardando..." else "Guardar solicitud")
+            }
+            // Eliminar (solo cuando se está editando una solicitud existente)
+            if (solicitudId != null) {
+                OutlinedButton(
+                    onClick = { confirmarEliminar = true },
+                    enabled = !estado.guardando,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Eliminar solicitud", color = MaterialTheme.colorScheme.error)
+                }
+            }
+
+            if (confirmarEliminar) {
+                AlertDialog(
+                    onDismissRequest = { confirmarEliminar = false },
+                    title = { Text("Eliminar solicitud") },
+                    text = { Text("¿Seguro que quieres eliminar esta solicitud? Esta acción no se puede deshacer.") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            confirmarEliminar = false
+                            viewModel.eliminar()
+                        }) { Text("Eliminar") }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { confirmarEliminar = false }) { Text("Cancelar") }
+                    }
+                )
             }
         }
     }
