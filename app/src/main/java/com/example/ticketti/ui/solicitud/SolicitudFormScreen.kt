@@ -152,11 +152,23 @@ fun SolicitudFormScreen(
                 }
             }
 
-            // Servicio relacionado (opcional)
+            // Servicio relacionado (obligatorio solo en algunas categorías)
+            val servicioObligatorio = estado.categoria in CATEGORIAS_CON_SERVICIO
             OutlinedTextField(
                 value = estado.servicio,
                 onValueChange = viewModel::onServicioChange,
-                label = { Text("Servicio relacionado") },
+                label = {
+                    Text(
+                        if (servicioObligatorio) "Servicio relacionado (obligatorio)"
+                        else "Servicio relacionado (opcional)"
+                    )
+                },
+                isError = estado.servicioError != null,
+                supportingText = {
+                    estado.servicioError?.let {
+                        Text(text = it, color = MaterialTheme.colorScheme.error)
+                    }
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 

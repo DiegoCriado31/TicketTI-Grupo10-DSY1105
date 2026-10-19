@@ -11,5 +11,6 @@ data class SolicitudUiState(
     val descripcionError: String? = null,
     val categoriaError: String? = null,
     val guardando: Boolean = false,
-    val guardadoExitosamente: Boolean = false
+    val guardadoExitosamente: Boolean = false,
+    val servicioError: String? = null
 )
