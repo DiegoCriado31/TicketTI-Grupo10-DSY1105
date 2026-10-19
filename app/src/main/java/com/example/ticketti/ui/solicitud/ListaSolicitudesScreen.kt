@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.ticketti.data.local.SolicitudEntity
+import com.example.ticketti.model.Rol
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,9 +39,15 @@ fun ListaSolicitudesScreen(
     viewModel: SolicitudViewModel
 ) {
     val solicitudes by viewModel.solicitudes.collectAsState()
+    val usuario by viewModel.usuarioActual.collectAsState()
+    val esCliente = usuario?.rol == Rol.CLIENTE
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Mis solicitudes") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text(if (esCliente) "Mis solicitudes" else "Todas las solicitudes") }
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { navController.navigate("solicitud_form") }
@@ -79,6 +86,7 @@ fun ListaSolicitudesScreen(
                 items(solicitudes) { solicitud ->
                     SolicitudItem(
                         solicitud = solicitud,
+                        mostrarAutor = !esCliente,
                         onClick = {
                             navController.navigate("solicitud_form/${solicitud.id}")
                         }
@@ -92,6 +100,7 @@ fun ListaSolicitudesScreen(
 @Composable
 private fun SolicitudItem(
     solicitud: SolicitudEntity,
+    mostrarAutor: Boolean,
     onClick: () -> Unit
 ) {
     Card(
@@ -135,6 +144,13 @@ private fun SolicitudItem(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = solicitud.categoria,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            if (mostrarAutor) {
+                Text(
+                    text = "Creada por: ${solicitud.creadoPor.ifEmpty { "sin usuario" }}",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

@@ -12,6 +12,7 @@ import com.example.ticketti.ui.solicitud.SolicitudFormScreen
 import com.example.ticketti.ui.solicitud.SolicitudViewModel
 import com.example.ticketti.ui.theme.HomeScreen
 import com.example.ticketti.view.DrawerMenu
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun AppNav() {
@@ -33,6 +34,9 @@ fun AppNav() {
             )
         ) { backStackEntry ->
             val username = backStackEntry.arguments?.getString("username").orEmpty()
+            LaunchedEffect(username) {
+                solicitudViewModel.iniciarSesion(username)
+            }
             DrawerMenu(username = username, navController = navController)
         }
 

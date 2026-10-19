@@ -13,5 +13,6 @@ data class SolicitudEntity(
     val servicio: String,
     val evidenciaUri: String? = null,
     val estado: String = "Recibida",
-    val fechaCreacion: Long = System.currentTimeMillis()
+    val fechaCreacion: Long = System.currentTimeMillis(),
+    val creadoPor: String = ""
 )
