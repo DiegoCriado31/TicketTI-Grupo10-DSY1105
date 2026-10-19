@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+// Categorías en las que el servicio relacionado es obligatorio
+val CATEGORIAS_CON_SERVICIO = setOf("Cambio en sitio", "Hosting / dominio")
 class SolicitudViewModel(app: Application) : AndroidViewModel(app) {
 
     private val repository = SolicitudRepository(
@@ -42,11 +44,11 @@ class SolicitudViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun onCategoriaChange(valor: String) {
-        _uiState.update { it.copy(categoria = valor, categoriaError = null) }
+        _uiState.update { it.copy(categoria = valor, categoriaError = null, servicioError = null) }
     }
 
     fun onServicioChange(valor: String) {
-        _uiState.update { it.copy(servicio = valor) }
+        _uiState.update { it.copy(servicio = valor, servicioError = null) }
     }
 
     fun onEvidenciaChange(uri: String?) {
@@ -99,18 +101,20 @@ class SolicitudViewModel(app: Application) : AndroidViewModel(app) {
         val tituloError = if (s.titulo.isBlank()) "El título es obligatorio" else null
         val descripcionError = if (s.descripcion.isBlank()) "La descripción es obligatoria" else null
         val categoriaError = if (s.categoria.isBlank()) "Selecciona una categoría" else null
+        val servicioError = if (s.categoria in CATEGORIAS_CON_SERVICIO && s.servicio.isBlank())
+            "Indica el servicio relacionado" else null
 
-        if (tituloError != null || descripcionError != null || categoriaError != null) {
+        if (tituloError != null || descripcionError != null || categoriaError != null || servicioError != null) {
             _uiState.update {
                 it.copy(
                     tituloError = tituloError,
                     descripcionError = descripcionError,
-                    categoriaError = categoriaError
+                    categoriaError = categoriaError,
+                    servicioError = servicioError
                 )
             }
             return
         }
-
         viewModelScope.launch {
             _uiState.update { it.copy(guardando = true) }
             val base = solicitudCargada
