@@ -75,6 +75,22 @@ class SolicitudViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    fun setSolicitudParaEditar(entity: SolicitudEntity?) {
+        if (entity == null) {
+            nuevaSolicitud()
+            return
+        }
+        solicitudCargada = entity
+        _uiState.value = SolicitudUiState(
+            titulo = entity.titulo,
+            descripcion = entity.descripcion,
+            categoria = entity.categoria,
+            servicio = entity.servicio,
+            evidenciaUri = entity.evidenciaUri,
+            estado = entity.estado
+        )
+    }
+
     // ---- Guardar ----
 
     fun guardar() {
