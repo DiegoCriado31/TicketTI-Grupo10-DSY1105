@@ -1,7 +1,6 @@
 package com.example.ticketti.ui.theme
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -38,6 +37,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.ticketti.R
 import com.example.ticketti.ui.theme.login.LoginViewModel
+import androidx.compose.material3.TopAppBarDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,9 +50,11 @@ fun HomeScreen(
     var showPass by remember { mutableStateOf(false) }
 
     val ColorScheme = darkColorScheme(
-        primary = Color(0xFF98222E),
+        primary = Color(0xFF1565C0),
         onPrimary = Color.White,
-        onSurface = Color(0xFF333333), //gris
+        onSurface = Color(0xFF333333),
+        onSurfaceVariant = Color(0xFF455A64),
+        outline = Color(0xFF78909C)
     )
 
     MaterialTheme(
@@ -61,6 +63,7 @@ fun HomeScreen(
 
         // Scaffold: permite generar una pantalla basica
         Scaffold(
+            containerColor = Color(0xFFDCEBFA),
             topBar = {
                 TopAppBar(
                     title = {
@@ -68,7 +71,11 @@ fun HomeScreen(
                             "TicketTI",
                             color = MaterialTheme.colorScheme.onPrimary
                         )
-                    }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 )
             } // fin topBar
         ) { innerPadding ->
@@ -77,8 +84,7 @@ fun HomeScreen(
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize()
-                    .padding(16.dp)
-                    .background(Color(0xFFF0F0F0)),
+                    .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) { //inicio inner
@@ -135,7 +141,7 @@ fun HomeScreen(
                     Spacer(Modifier.height(8.dp))
                     Text(
                         text = state.error ?: "",
-                        color = MaterialTheme.colorScheme.primary,
+                        color = Color(0xFFC62828),
                         fontWeight = FontWeight.Bold
                     )
                 } // fin state
