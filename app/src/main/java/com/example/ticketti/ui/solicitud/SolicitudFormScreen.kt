@@ -32,6 +32,20 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.TextButton
 import com.example.ticketti.model.Rol
 import androidx.compose.runtime.saveable.rememberSaveable
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.height
+import androidx.compose.runtime.produceState
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.FileProvider
+import java.io.File
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 // Categorías del formulario (a confirmar con Abraham)
 private val categorias = listOf(
@@ -53,6 +67,12 @@ fun SolicitudFormScreen(
     val puedeEliminar = usuario?.rol == Rol.ADMIN && solicitudId != null
     var menuAbierto by remember { mutableStateOf(false) }
     var confirmarEliminar by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    var uriPendiente by rememberSaveable { mutableStateOf<String?>(null) }
+    val tomarFoto = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { exito ->
+        if (exito) viewModel.onEvidenciaChange(uriPendiente)
+        uriPendiente = null
+    }
     // rememberSaveable sobrevive a rotar o volver de la cámara, pero se pierde
     // al salir del formulario. Así solo se inicializa UNA vez por visita.
     var inicializado by rememberSaveable { mutableStateOf(false) }
@@ -191,11 +211,43 @@ fun SolicitudFormScreen(
 
             // Evidencia (foto). La cámara se agrega después en pareja:
             // el botón, el permiso y el FileProvider llamarán a viewModel.onEvidenciaChange(uri)
-            Text(
-                text = if (estado.evidenciaUri != null) "Evidencia: foto adjunta"
-                else "Evidencia: sin foto",
-                style = MaterialTheme.typography.bodyMedium
-            )
+            // Evidencia (foto) con la cámara del sistema
+            OutlinedButton(
+                onClick = {
+                    val carpeta = File(context.filesDir, "evidencias").apply { mkdirs() }
+                    val archivo = File(carpeta, "evidencia_${System.currentTimeMillis()}.jpg")
+                    val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", archivo)
+                    uriPendiente = uri.toString()
+                    tomarFoto.launch(uri)
+                },
+                enabled = !estado.guardando,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(if (estado.evidenciaUri != null) "Cambiar foto" else "Tomar foto")
+            }
+
+            // Vista previa de la foto
+            estado.evidenciaUri?.let { uriTexto ->
+                val bitmap by produceState<Bitmap?>(initialValue = null, uriTexto) {
+                    value = withContext(Dispatchers.IO) {
+                        try {
+                            val opciones = BitmapFactory.Options().apply { inSampleSize = 4 }
+                            context.contentResolver.openInputStream(Uri.parse(uriTexto))?.use { flujo ->
+                                BitmapFactory.decodeStream(flujo, null, opciones)
+                            }
+                        } catch (e: Exception) {
+                            null
+                        }
+                    }
+                }
+                bitmap?.let { img ->
+                    Image(
+                        bitmap = img.asImageBitmap(),
+                        contentDescription = "Evidencia de la solicitud",
+                        modifier = Modifier.fillMaxWidth().height(200.dp)
+                    )
+                }
+            }
 
             // Botón guardar
             Button(
