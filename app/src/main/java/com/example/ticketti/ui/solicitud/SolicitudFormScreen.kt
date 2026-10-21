@@ -46,6 +46,23 @@ import androidx.core.content.FileProvider
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.Icon
+import androidx.compose.ui.Alignment
+import android.widget.Toast
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 // Categorías del formulario (a confirmar con Abraham)
 private val categorias = listOf(
@@ -72,6 +89,19 @@ fun SolicitudFormScreen(
     val tomarFoto = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { exito ->
         if (exito) viewModel.onEvidenciaChange(uriPendiente)
         uriPendiente = null
+    }
+    val scope = rememberCoroutineScope()
+    val elegirDeGaleria = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { origen ->
+        if (origen != null) {
+            scope.launch {
+                val copia = copiarEvidenciaDeGaleria(context, origen)
+                if (copia != null) {
+                    viewModel.onEvidenciaChange(copia)
+                } else {
+                    Toast.makeText(context, "La imagen no es válida o supera los 5 MB", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
     // rememberSaveable sobrevive a rotar o volver de la cámara, pero se pierde
     // al salir del formulario. Así solo se inicializa UNA vez por visita.
@@ -115,10 +145,17 @@ fun SolicitudFormScreen(
 
             // Fecha y hora de creación (solo al editar; nunca cambia)
             estado.fechaCreacion?.let { fecha ->
-                Text(
-                    text = "Creada el ${formatearFecha(fecha)}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "${estado.codigo} · Creada el ${formatearFecha(fecha)}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    EstadoEtiqueta(estado.estado)
+                }
             }
 
             // Campo título
@@ -226,6 +263,18 @@ fun SolicitudFormScreen(
                 Text(if (estado.evidenciaUri != null) "Cambiar foto" else "Tomar foto")
             }
 
+            OutlinedButton(
+                onClick = {
+                    elegirDeGaleria.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                },
+                enabled = !estado.guardando,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Elegir de galería")
+            }
+
             // Vista previa de la foto
             estado.evidenciaUri?.let { uriTexto ->
                 val bitmap by produceState<Bitmap?>(initialValue = null, uriTexto) {
@@ -240,12 +289,18 @@ fun SolicitudFormScreen(
                         }
                     }
                 }
-                bitmap?.let { img ->
-                    Image(
-                        bitmap = img.asImageBitmap(),
-                        contentDescription = "Evidencia de la solicitud",
-                        modifier = Modifier.fillMaxWidth().height(200.dp)
-                    )
+                AnimatedVisibility(
+                    visible = bitmap != null,
+                    enter = fadeIn() + expandVertically(),
+                    exit = fadeOut() + shrinkVertically()
+                ) {
+                    bitmap?.let { img ->
+                        Image(
+                            bitmap = img.asImageBitmap(),
+                            contentDescription = "Evidencia de la solicitud",
+                            modifier = Modifier.fillMaxWidth().height(200.dp)
+                        )
+                    }
                 }
             }
 
@@ -256,6 +311,27 @@ fun SolicitudFormScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(if (estado.guardando) "Guardando..." else "Guardar solicitud")
+            }
+
+            AnimatedVisibility(
+                visible = solicitudId != null && estado.codigo.isNotEmpty(),
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                OutlinedButton(
+                    onClick = {
+                        compartirPorWhatsApp(
+                            context,
+                            mensajeWhatsApp(estado.codigo, estado.titulo, estado.categoria, estado.estado)
+                        )
+                    },
+                    enabled = !estado.guardando,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Compartir por WhatsApp")
+                }
             }
             // Eliminar (solo cuando se está editando una solicitud existente)
             if (puedeEliminar) {
