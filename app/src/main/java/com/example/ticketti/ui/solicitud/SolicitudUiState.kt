@@ -1,6 +1,7 @@
 package com.example.ticketti.ui.solicitud
 
 data class SolicitudUiState(
+    val codigo: String = "",
     val titulo: String = "",
     val descripcion: String = "",
     val categoria: String = "",

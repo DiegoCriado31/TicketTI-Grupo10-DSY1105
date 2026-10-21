@@ -90,6 +90,7 @@ class SolicitudViewModel(app: Application) : AndroidViewModel(app) {
             val entity = repository.obtener(id) ?: return@launch
             solicitudCargada = entity
             _uiState.value = SolicitudUiState(
+                codigo = entity.codigo,
                 titulo = entity.titulo,
                 descripcion = entity.descripcion,
                 categoria = entity.categoria,
@@ -108,6 +109,7 @@ class SolicitudViewModel(app: Application) : AndroidViewModel(app) {
         }
         solicitudCargada = entity
         _uiState.value = SolicitudUiState(
+            codigo = entity.codigo,
             titulo = entity.titulo,
             descripcion = entity.descripcion,
             categoria = entity.categoria,
