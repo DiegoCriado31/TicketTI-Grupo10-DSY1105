@@ -8,14 +8,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,7 +44,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.ticketti.R
 import com.example.ticketti.ui.theme.login.LoginViewModel
-import androidx.compose.material3.TopAppBarDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -118,6 +124,7 @@ fun HomeScreen(
                     value = state.username,
                     onValueChange = vm::onUsernameChange,
                     label = { Text("Usuario") },
+                    leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(0.95f)
                 ) // fin user
@@ -126,12 +133,16 @@ fun HomeScreen(
                     value = state.password,
                     onValueChange = vm::onPasswordChange,
                     label = { Text("Contraseña") },
+                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
                     singleLine = true,
                     visualTransformation = if (showPass)
                         VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        TextButton(onClick = { showPass = !showPass }) {
-                            Text(if (showPass) "Ocultar" else "Ver")
+                        IconButton(onClick = { showPass = !showPass }) {
+                            Icon(
+                                imageVector = if (showPass) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                contentDescription = if (showPass) "Ocultar contraseña" else "Mostrar contraseña"
+                            )
                         }
                     },
                     modifier = Modifier.fillMaxWidth(0.95f)

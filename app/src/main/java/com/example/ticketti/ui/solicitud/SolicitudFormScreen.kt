@@ -1,48 +1,54 @@
 package com.example.ticketti.ui.solicitud
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.TextButton
-import com.example.ticketti.model.Rol
-import androidx.compose.runtime.saveable.rememberSaveable
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Title
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import androidx.navigation.NavController
+import com.example.ticketti.model.Rol
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -126,6 +132,7 @@ fun SolicitudFormScreen(
                 value = estado.titulo,
                 onValueChange = viewModel::onTituloChange,
                 label = { Text("Título") },
+                leadingIcon = { Icon(Icons.Default.Title, contentDescription = null) },
                 isError = estado.tituloError != null,
                 supportingText = {
                     estado.tituloError?.let {
@@ -141,6 +148,7 @@ fun SolicitudFormScreen(
                 onValueChange = viewModel::onDescripcionChange,
                 label = { Text("Descripción") },
                 minLines = 3,
+                leadingIcon = { Icon(Icons.Default.Description, contentDescription = null) },
                 isError = estado.descripcionError != null,
                 supportingText = {
                     estado.descripcionError?.let {
@@ -163,6 +171,7 @@ fun SolicitudFormScreen(
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuAbierto)
                     },
+                    leadingIcon = { Icon(Icons.Default.Category, contentDescription = null) },
                     isError = estado.categoriaError != null,
                     supportingText = {
                         estado.categoriaError?.let {
@@ -200,6 +209,7 @@ fun SolicitudFormScreen(
                         else "Servicio relacionado (opcional)"
                     )
                 },
+                leadingIcon = { Icon(Icons.Default.Build, contentDescription = null) },
                 isError = estado.servicioError != null,
                 supportingText = {
                     estado.servicioError?.let {
@@ -209,8 +219,6 @@ fun SolicitudFormScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Evidencia (foto). La cámara se agrega después en pareja:
-            // el botón, el permiso y el FileProvider llamarán a viewModel.onEvidenciaChange(uri)
             // Evidencia (foto) con la cámara del sistema
             OutlinedButton(
                 onClick = {
@@ -257,6 +265,7 @@ fun SolicitudFormScreen(
             ) {
                 Text(if (estado.guardando) "Guardando..." else "Guardar solicitud")
             }
+
             // Eliminar (solo cuando se está editando una solicitud existente)
             if (puedeEliminar) {
                 OutlinedButton(
