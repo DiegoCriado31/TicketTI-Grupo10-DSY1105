@@ -83,10 +83,11 @@ fun ListaSolicitudesScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(solicitudes) { solicitud ->
+                items(solicitudes, key = { it.id }) { solicitud ->
                     SolicitudItem(
                         solicitud = solicitud,
                         mostrarAutor = !esCliente,
+                        modifier = Modifier.animateItem(),
                         onClick = {
                             navController.navigate("solicitud_form/${solicitud.id}")
                         }
@@ -101,10 +102,11 @@ fun ListaSolicitudesScreen(
 private fun SolicitudItem(
     solicitud: SolicitudEntity,
     mostrarAutor: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -125,10 +127,7 @@ private fun SolicitudItem(
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
-                Text(
-                    text = solicitud.estado,
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                EstadoEtiqueta(solicitud.estado)
             }
 
             Text(
