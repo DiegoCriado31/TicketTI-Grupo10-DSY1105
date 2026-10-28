@@ -13,13 +13,38 @@ import com.example.ticketti.ui.solicitud.SolicitudViewModel
 import com.example.ticketti.ui.theme.HomeScreen
 import com.example.ticketti.view.DrawerMenu
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 
 @Composable
 fun AppNav() {
     val navController = rememberNavController()
     val solicitudViewModel: SolicitudViewModel = viewModel()
 
-    NavHost(navController = navController, startDestination = "login") {
+    NavHost(
+        navController = navController,
+        startDestination = "login",
+        // Al avanzar: la pantalla nueva entra deslizándose desde la derecha con fundido
+        enterTransition = {
+            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(350)) +
+                    fadeIn(tween(350))
+        },
+        exitTransition = {
+            slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left, tween(350)) +
+                    fadeOut(tween(350))
+        },
+        // Al volver atrás: el movimiento se invierte
+        popEnterTransition = {
+            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(350)) +
+                    fadeIn(tween(350))
+        },
+        popExitTransition = {
+            slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, tween(350)) +
+                    fadeOut(tween(350))
+        }
+    ) {
 
         // Login
         composable("login") {
