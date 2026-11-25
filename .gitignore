@@ -15,3 +15,11 @@ local.properties
 
 # Sistema
 .DS_Store
+
+# Claves de firma (NUNCA subir)
+*.jks
+*.keystore
+keystore.properties
+
+# Bundles y APK generados
+*.aab
