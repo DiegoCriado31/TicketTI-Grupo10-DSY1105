@@ -13,8 +13,12 @@ data class Credential(
         val Admin = Credential(username = "admin", password = "123", rol = Rol.ADMIN)
         val Cliente = Credential(username = "cliente", password = "123", rol = Rol.CLIENTE)
         val Cliente2 = Credential(username = "cliente2", password = "123", rol = Rol.CLIENTE)
-        val Tecnico = Credential(username = "tecnico", password = "123", rol = Rol.TECNICO)
+        val Tecnico1 = Credential(username = "tecnico1", password = "123", rol = Rol.TECNICO)
+        val Tecnico2 = Credential(username = "tecnico2", password = "123", rol = Rol.TECNICO)
 
-        val Usuarios = listOf(Admin, Cliente, Cliente2, Tecnico)
+        val Usuarios = listOf(Admin, Cliente, Cliente2, Tecnico1, Tecnico2)
+        val Tecnicos = Usuarios.filter { it.rol == Rol.TECNICO }
+
+        val Clientes = Usuarios.filter { it.rol == Rol.CLIENTE }
     }
 }

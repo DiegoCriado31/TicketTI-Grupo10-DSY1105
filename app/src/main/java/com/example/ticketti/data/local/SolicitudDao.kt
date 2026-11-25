@@ -21,6 +21,15 @@ interface SolicitudDao {
 
     @Update
     suspend fun actualizar(entity: SolicitudEntity)
+
+    @Query("UPDATE solicitudes SET tecnicoAsignado = :tecnico, estado = :estado WHERE id = :id")
+    suspend fun actualizarAsignacion(id: Long, tecnico: String, estado: String)
+
+    @Query("UPDATE solicitudes SET estado = :estado WHERE id = :id")
+    suspend fun actualizarEstado(id: Long, estado: String)
+
+    @Query("UPDATE solicitudes SET prioridad = :prioridad WHERE id = :id")
+    suspend fun actualizarPrioridad(id: Long, prioridad: String)
     @Delete
     suspend fun eliminar(entity: SolicitudEntity)
 }

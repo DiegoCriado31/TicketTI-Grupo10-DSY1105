@@ -1,5 +1,8 @@
 package com.example.ticketti.view
 
+import androidx.compose.material.icons.filled.Cloud
+import com.example.ticketti.model.Rol
+import com.example.ticketti.repository.AuthRepository
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +33,7 @@ fun DrawerMenu(
     navController: NavController
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
+        val rol = AuthRepository().buscarUsuario(username)?.rol
 
         // Encabezado
         Box(
@@ -65,18 +69,33 @@ fun DrawerMenu(
                 )
             }
 
-            item {
-                NavigationDrawerItem(
-                    label = { Text("Nueva solicitud") },
-                    selected = false,
-                    onClick = { navController.navigate("solicitud_form") },
-                    icon = {
-                        Icon(
-                            Icons.Default.AddCircle,
-                            contentDescription = "Nueva solicitud"
-                        )
-                    }
-                )
+            if (rol != Rol.TECNICO) {
+                item {
+                    NavigationDrawerItem(
+                        label = { Text("Nueva solicitud") },
+                        selected = false,
+                        onClick = { navController.navigate("solicitud_form") },
+                        icon = {
+                            Icon(
+                                Icons.Default.AddCircle,
+                                contentDescription = "Nueva solicitud"
+                            )
+                        }
+                    )
+                }
+                item {
+                    NavigationDrawerItem(
+                        label = { Text("Catálogo de servicios") },
+                        selected = false,
+                        onClick = { navController.navigate("catalogo") },
+                        icon = {
+                            Icon(
+                                Icons.Default.Cloud,
+                                contentDescription = "Catálogo de servicios"
+                            )
+                        }
+                    )
+                }
             }
 
             item {
