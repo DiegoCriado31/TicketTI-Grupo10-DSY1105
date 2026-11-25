@@ -40,58 +40,90 @@ fun ListaSolicitudesScreen(
 ) {
     val solicitudes by viewModel.solicitudes.collectAsState()
     val usuario by viewModel.usuarioActual.collectAsState()
+    val filtros by viewModel.filtros.collectAsState()
     val esCliente = usuario?.rol == Rol.CLIENTE
+    val esTecnico = usuario?.rol == Rol.TECNICO
+    val esAdmin = usuario?.rol == Rol.ADMIN
+    val filtrando = esAdmin && filtros.hayFiltros
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (esCliente) "Mis solicitudes" else "Todas las solicitudes") }
+                title = {
+                    Text(
+                        when {
+                            esCliente -> "Mis solicitudes"
+                            esTecnico -> "Mis solicitudes asignadas"
+                            else -> "Todas las solicitudes"
+                        }
+                    )
+                }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navController.navigate("solicitud_form") }
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Nueva solicitud")
+            // El técnico no crea solicitudes, solo trabaja las que le asignan
+            if (!esTecnico) {
+                FloatingActionButton(
+                    onClick = { navController.navigate("solicitud_form") }
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Nueva solicitud")
+                }
             }
         }
     ) { innerPadding ->
-        if (solicitudes.isEmpty()) {
-            Column(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "No hay solicitudes registradas",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Spacer(modifier = Modifier.padding(8.dp))
-                Text(
-                    text = "Presiona + para agregar una nueva",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
+            // Filtros: solo el admin
+            if (esAdmin) {
+                FiltrosAdmin(viewModel)
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(solicitudes, key = { it.id }) { solicitud ->
-                    SolicitudItem(
-                        solicitud = solicitud,
-                        mostrarAutor = !esCliente,
-                        modifier = Modifier.animateItem(),
-                        onClick = {
-                            navController.navigate("solicitud_form/${solicitud.id}")
-                        }
+
+            if (solicitudes.isEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = when {
+                            esTecnico -> "No tienes solicitudes asignadas"
+                            filtrando -> "Ninguna solicitud coincide con los filtros"
+                            else -> "No hay solicitudes registradas"
+                        },
+                        style = MaterialTheme.typography.bodyLarge
                     )
+                    if (!esTecnico && !filtrando) {
+                        Spacer(modifier = Modifier.padding(8.dp))
+                        Text(
+                            text = "Presiona + para agregar una nueva",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(solicitudes, key = { it.id }) { solicitud ->
+                        SolicitudItem(
+                            solicitud = solicitud,
+                            mostrarAutor = !esCliente,
+                            modifier = Modifier.animateItem(),
+                            onClick = {
+                                navController.navigate("solicitud_form/${solicitud.id}")
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -158,6 +190,15 @@ private fun SolicitudItem(
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
+
+            Text(
+                text = "Técnico: ${solicitud.tecnicoAsignado ?: "sin asignar"}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "Prioridad: ${solicitud.prioridad}",
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }
