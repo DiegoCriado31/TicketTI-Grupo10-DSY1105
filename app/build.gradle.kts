@@ -63,8 +63,8 @@ dependencies {
     implementation("androidx.room:room-runtime:$roomVersion")// librería base
     implementation("androidx.room:room-ktx:$roomVersion")// : agrega corrutinas y Flow. actualiza sola al guardar.
     ksp("androidx.room:room-compiler:$roomVersion")
-
     testImplementation(libs.junit)
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
