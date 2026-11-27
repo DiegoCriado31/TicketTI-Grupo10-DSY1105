@@ -1,6 +1,7 @@
 package com.example.ticketti.view
 
 import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.TrackChanges
 import com.example.ticketti.model.Rol
 import com.example.ticketti.repository.AuthRepository
 import androidx.compose.foundation.background
@@ -92,6 +93,19 @@ fun DrawerMenu(
                             Icon(
                                 Icons.Default.Cloud,
                                 contentDescription = "Catálogo de servicios"
+                            )
+                        }
+                    )
+                }
+                item {
+                    NavigationDrawerItem(
+                        label = { Text("Seguimiento") },
+                        selected = false,
+                        onClick = { navController.navigate("seguimiento") },
+                        icon = {
+                            Icon(
+                                Icons.Default.TrackChanges,
+                                contentDescription = "Seguimiento"
                             )
                         }
                     )

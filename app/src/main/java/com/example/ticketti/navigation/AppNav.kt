@@ -1,6 +1,7 @@
 package com.example.ticketti.navigation
 
 import com.example.ticketti.ui.catalogo.CatalogoScreen
+import com.example.ticketti.ui.seguimiento.SeguimientoScreen
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -100,6 +101,9 @@ fun AppNav() {
         // Catálogo de servicios (API)
         composable("catalogo") {
             CatalogoScreen(navController = navController)
+        }
+        composable("seguimiento") {
+            SeguimientoScreen(navController = navController)
         }
     }
 }
