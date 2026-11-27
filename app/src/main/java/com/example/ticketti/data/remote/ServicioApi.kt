@@ -14,20 +14,23 @@ data class ServicioCatalogo(
 
 // Endpoint: se agrega al final de la dirección base
 interface ServicioApi {
-    @GET("servicios.json")
+    @GET("catalogo.json")
     suspend fun obtenerServicios(): List<ServicioCatalogo>
 }
 
 // Crea Retrofit una sola vez para toda la app
 object ApiClient {
     private const val BASE_URL =
-        "https://raw.githubusercontent.com/DiegoCriado31/ticketti-api/refs/heads/main/"
+        "https://raw.githubusercontent.com/AbrahJosee/ticketti-api-grupo10/main/"
 
-    val servicioApi: ServicioApi by lazy {
+    private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(ServicioApi::class.java)
     }
+
+    val servicioApi: ServicioApi by lazy { retrofit.create(ServicioApi::class.java) }
+
+    val seguimientoApi: SeguimientoApi by lazy { retrofit.create(SeguimientoApi::class.java) }
 }
